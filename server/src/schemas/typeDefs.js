@@ -1,4 +1,6 @@
 export const typeDefs = `#graphql
+scalar Upload
+
 type User {
     username:String!
     email:String!
@@ -20,5 +22,6 @@ type Query {
 
 type Mutation {
     createUser(user:addUserInput!):User
+    updateUserAvatar(userId:ID!, avatarImage:Upload!):User
 }
 `;

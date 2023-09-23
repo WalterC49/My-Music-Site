@@ -7,21 +7,31 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import { typeDefs } from "./schemas/typeDefs.js";
 import { resolvers } from "./resolvers/resolvers.js";
 import { createServer } from "http";
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 connectDB();
 
 const app = express();
 
 const httpServer = createServer(app);
 
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
+/* app.use(graphqlUploadExpress()); */
 await server.start();
 
-app.use("/", cors(), express.json(), expressMiddleware(server));
+app.use(
+  "/",
+  cors(),
+  express.json(),
+  graphqlUploadExpress(),
+  expressMiddleware(server),
+);
 
 await new Promise(resolve =>
   httpServer.listen({ port: process.env.PORT }, resolve),
