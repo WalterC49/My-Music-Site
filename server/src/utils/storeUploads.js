@@ -1,15 +1,18 @@
-import { UPLOAD_DIRECTORY_URL } from "../contants/conts.js";
+import { TYPES, AVATARS_URL, SONGS_URL } from "../contants/conts.js";
 import { extname } from "path";
-import { createWriteStream, unlink } from "fs";
+import { createWriteStream, unlink, unlinkSync } from "fs";
 
-export async function storeImage(image) {
-  const { filename, createReadStream } = await image;
+export async function storeFile(file, type) {
+  const { filename, createReadStream } = await file;
 
   const fileExtension = extname(filename);
   const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
   const storedFileName = `avatar${uniqueSuffix}${fileExtension}`;
 
-  const storedFileUrl = new URL(storedFileName, UPLOAD_DIRECTORY_URL);
+  const storedFileUrl = new URL(
+    storedFileName,
+    type === TYPES.IMAGE ? AVATARS_URL : SONGS_URL,
+  );
 
   const stream = createReadStream();
 
@@ -38,5 +41,14 @@ export async function storeImage(image) {
     stream.pipe(writeStream);
   });
 
-  return storedFileUrl.pathname;
+  /* return storedFileUrl.pathname; */
+  return storedFileName;
+}
+
+export function deleteFile(filePath) {
+  try {
+    unlinkSync(filePath);
+  } catch (error) {
+    console.log(error);
+  }
 }

@@ -1,17 +1,18 @@
+import { UPLOAD_DIRECTORY_IMAGE_PATH, TYPES, SALT } from "../contants/conts.js";
 import UserModel from "../models/user.js";
-import { storeImage } from "../utils/storeUploads.js";
-
-const DEFAULT_AVATAR_URL = new URL(
-  "../public/default-avatar.jpeg",
-  import.meta.url,
-);
-
-/* console.log(DEFAULT_AVATAR_URL.pathname); */
+import { storeFile, deleteFile } from "../utils/storeUploads.js";
+import bcrypt from "bcryptjs";
 
 const createUser = async ({ user }) => {
+  if (user.password !== user.password2)
+    throw Error("Las contraseñas no son iguales.");
+
+  const passHash = await bcrypt.hash(user.password, SALT);
+
   const newUser = new UserModel({
     ...user,
-    avatarPath: DEFAULT_AVATAR_URL.pathname,
+    password: passHash,
+    avatarPath: "default-avatar.jpg",
     roles: ["USER", "MODERATOR", "ADMIN"],
   });
   await newUser.save();
@@ -32,15 +33,29 @@ const getUserById = async ({ id }) => {
 
 const updateUserAvatar = async ({ userId: id, avatarImage }) => {
   const user = await UserModel.findById(id);
-  const newAvatarPath = await storeImage(avatarImage);
+
+  const { avatarPath } = user;
+
+  if (avatarPath !== "default-avatar-jpg") {
+    deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath);
+  }
+
+  const newAvatarPath = await storeFile(avatarImage, TYPES.IMAGE);
+
   user.avatarPath = newAvatarPath;
   user.save();
   return user;
 };
 
-const getImagePathById = async ({ id }) => {
+const getImageById = async (req, res, next) => {
+  const { id } = req.params;
   const { avatarPath } = await UserModel.findById(id);
-  return avatarPath;
+
+  res.sendFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath, err => {
+    if (err) {
+      next(err);
+    }
+  });
 };
 
 export const userServices = {
@@ -48,5 +63,5 @@ export const userServices = {
   getAllUsers,
   getUserById,
   updateUserAvatar,
-  getImagePathById,
+  getImageById,
 };

@@ -9,6 +9,7 @@ import { resolvers } from "./resolvers/resolvers.js";
 import { createServer } from "http";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+import avatarRouter from "./routes/avatar.routes.js";
 connectDB();
 
 const app = express();
@@ -22,7 +23,8 @@ const server = new ApolloServer({
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
-/* app.use(graphqlUploadExpress()); */
+app.use("/", avatarRouter);
+
 await server.start();
 
 app.use(
