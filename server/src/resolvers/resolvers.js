@@ -4,21 +4,37 @@ import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 export const resolvers = {
   Upload: GraphQLUpload,
   Query: {
-    users: async (parent, args) => {
-      return await userServices.getAllUsers();
+    users: (_parent, _args) => {
+      return userServices.getAllUsers();
     },
-    user: (parent, { id }) => {
+    user: (_parent, { id }) => {
       const user = userServices.getUserById({ id });
       return user;
     },
   },
   Mutation: {
-    createUser: async (parent, args) => {
-      const user = await userServices.createUser(args);
+    createUser: (_parent, args) => {
+      const user = userServices.createUser(args);
       return user;
     },
-    updateUserAvatar: async (parents, args) => {
-      const user = await userServices.updateUserAvatar(args);
+    updateUserAvatar: (_parent, args) => {
+      const user = userServices.updateUserAvatar(args);
+      return user;
+    },
+    updateUsername: (_parent, args) => {
+      const user = userServices.updateUsername(args);
+      return user;
+    },
+    updateEmail: (_parent, args) => {
+      const user = userServices.updateEmail(args);
+      return user;
+    },
+    updatePassword: (_parent, args) => {
+      const user = userServices.updatePassword(args);
+      return user;
+    },
+    deleteUser: (_parent, args) => {
+      const user = userServices.deleteUser(args);
       return user;
     },
   },

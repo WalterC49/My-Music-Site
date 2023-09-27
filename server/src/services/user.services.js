@@ -2,10 +2,10 @@ import { UPLOAD_DIRECTORY_IMAGE_PATH, TYPES, SALT } from "../contants/conts.js";
 import UserModel from "../models/user.js";
 import { storeFile, deleteFile } from "../utils/storeUploads.js";
 import bcrypt from "bcryptjs";
+import { validations } from "../utils/validations.js";
 
 const createUser = async ({ user }) => {
-  if (user.password !== user.password2)
-    throw Error("Las contraseñas no son iguales.");
+  await validations.validateCreateUser(user);
 
   const passHash = await bcrypt.hash(user.password, SALT);
 
@@ -26,13 +26,19 @@ const getAllUsers = async () => {
 };
 
 const getUserById = async ({ id }) => {
+  validations.validateId(id);
   const user = await UserModel.findById(id);
+
+  validations.userExists(user);
 
   return user;
 };
 
-const updateUserAvatar = async ({ userId: id, avatarImage }) => {
+const updateUserAvatar = async ({ id, avatarImage }) => {
+  validations.validateId(id);
   const user = await UserModel.findById(id);
+
+  validations.userExists(user);
 
   const { avatarPath } = user;
 
@@ -49,7 +55,12 @@ const updateUserAvatar = async ({ userId: id, avatarImage }) => {
 
 const getImageById = async (req, res, next) => {
   const { id } = req.params;
-  const { avatarPath } = await UserModel.findById(id);
+  validations.validateId(id);
+  const user = await UserModel.findById(id);
+
+  validations.userExists(user);
+
+  const { avatarPath } = user;
 
   res.sendFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath, err => {
     if (err) {
@@ -58,10 +69,75 @@ const getImageById = async (req, res, next) => {
   });
 };
 
+const updateUsername = async ({ id, username }) => {
+  await validations.validateUsername(username);
+
+  const userToUpdate = await UserModel.findById(id);
+
+  validations.userExists(userToUpdate);
+
+  userToUpdate.username = username;
+  userToUpdate.save();
+
+  return userToUpdate;
+};
+
+const updateEmail = async ({ id, email }) => {
+  await validations.validateEmail(email);
+
+  const userToUpdate = await UserModel.findById(id);
+
+  validations.userExists(userToUpdate);
+
+  userToUpdate.email = email;
+  userToUpdate.save();
+
+  return userToUpdate;
+};
+
+const updatePassword = async ({ id, oldPass, newPass }) => {
+  validations.validateId(id);
+  const user = await UserModel.findById(id);
+
+  validations.userExists(user);
+
+  await validations.comparePasswords(oldPass, user.password);
+
+  const passHash = await bcrypt.hash(newPass, SALT);
+
+  user.password = passHash;
+
+  await user.save();
+
+  return user;
+};
+
+const deleteUser = async ({ id, password }) => {
+  validations.validateId(id);
+  const user = await UserModel.findById(id);
+
+  validations.userExists(user);
+
+  await validations.comparePasswords(password, user.password);
+
+  const { avatarPath } = user;
+
+  if (avatarPath !== "default-avatar-jpg") {
+    deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath);
+  }
+  const deletedUser = await UserModel.deleteOne({ _id: id });
+
+  return deletedUser.acknowledged && deletedUser.deletedCount === 1;
+};
+
 export const userServices = {
   createUser,
   getAllUsers,
   getUserById,
   updateUserAvatar,
   getImageById,
+  updateUsername,
+  updateEmail,
+  updatePassword,
+  deleteUser,
 };
