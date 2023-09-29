@@ -4,8 +4,8 @@ import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 export const resolvers = {
   Upload: GraphQLUpload,
   Query: {
-    users: (_parent, _args) => {
-      return userServices.getAllUsers();
+    users: (_parent, _args, context) => {
+      return userServices.getAllUsers(context);
     },
     user: (_parent, { id }) => {
       const user = userServices.getUserById({ id });
@@ -36,6 +36,10 @@ export const resolvers = {
     deleteUser: (_parent, args) => {
       const user = userServices.deleteUser(args);
       return user;
+    },
+    login: (_parent, args) => {
+      const token = userServices.login(args);
+      return token;
     },
   },
 };

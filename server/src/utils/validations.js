@@ -4,7 +4,7 @@ import UserModel from "../models/user.js";
 import bcrypt from "bcryptjs";
 
 const validateId = id => {
-  if (id.length !== 12 || id.length !== 24)
+  if (!(id.length === 12 || id.length === 24))
     throw new GraphQLError("The ID is invalid.", {
       extensions: {
         code: ApolloServerErrorCode.BAD_USER_INPUT,
@@ -55,12 +55,18 @@ const validateEmail = async email => {
 };
 
 const validatePassword = password => {
-  if (password.length < 8)
-    throw new GraphQLError("Password must have at least eight characters.", {
-      extensions: {
-        code: ApolloServerErrorCode.BAD_USER_INPUT,
+  const regex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@!#$%&?"'¡¿]).{8,21})/;
+
+  console.log(regex.test(password));
+  if (!regex.test(password))
+    throw new GraphQLError(
+      `Passwords must have between 8 and 20 characters, at least one upper case letter, one lower case letter, one number and one special character.`,
+      {
+        extensions: {
+          code: ApolloServerErrorCode.BAD_USER_INPUT,
+        },
       },
-    });
+    );
   return true;
 };
 

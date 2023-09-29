@@ -16,6 +16,10 @@ input addUserInput {
     password2:String!
 }
 
+type Token {
+  value: String!
+}
+
 type Query {
     users:[User]
     user(id:ID!):User
@@ -23,10 +27,11 @@ type Query {
 
 type Mutation {
     createUser(user:addUserInput!):User
-    updateUserAvatar(id:ID!, avatarImage:Upload!):User
-    updateUsername(id:ID!,username:String!):User
-    updateEmail(id:ID!,email:String!):User
-    updatePassword(id:ID!,oldPass:String!,newPass:String!):User
-    deleteUser(id:ID!,password:String!):Boolean
+    updateUserAvatar(userId:ID!, avatarImage:Upload!):User
+    updateUsername(userId:ID!,username:String!):User
+    updateEmail(userId:ID!,email:String!):User
+    updatePassword(userId:ID!,oldPass:String!,newPass:String!):User
+    deleteUser(userId:ID!,password:String!):Boolean
+    login(username:String!,password:String!):Token
 }
 `;

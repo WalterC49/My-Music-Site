@@ -1,8 +1,14 @@
-import { UPLOAD_DIRECTORY_IMAGE_PATH, TYPES, SALT } from "../contants/conts.js";
+import {
+  UPLOAD_DIRECTORY_IMAGE_PATH,
+  FILETYPES,
+  SALT,
+} from "../contants/conts.js";
 import UserModel from "../models/user.js";
 import { storeFile, deleteFile } from "../utils/storeUploads.js";
 import bcrypt from "bcryptjs";
 import { validations } from "../utils/validations.js";
+import jwt from "jsonwebtoken";
+import { GraphQLError } from "graphql";
 
 const createUser = async ({ user }) => {
   await validations.validateCreateUser(user);
@@ -13,15 +19,29 @@ const createUser = async ({ user }) => {
     ...user,
     password: passHash,
     avatarPath: "default-avatar.jpg",
-    roles: ["USER", "MODERATOR", "ADMIN"],
+    roles: ["USER"],
   });
   await newUser.save();
   return newUser;
 };
 
-const getAllUsers = async () => {
+const getAllUsers = async context => {
+  const { currentUser } = context;
+  if (!currentUser) {
+    throw new GraphQLError("You are not authenticated.", {
+      extensions: {
+        code: "UNAUTHENTICATED",
+      },
+    });
+  }
+  if (!currentUser.roles.includes("ADMIN")) {
+    throw new GraphQLError("You are not authorized to do this.", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
+  }
   const users = await UserModel.find();
-
   return users;
 };
 
@@ -34,7 +54,7 @@ const getUserById = async ({ id }) => {
   return user;
 };
 
-const updateUserAvatar = async ({ id, avatarImage }) => {
+const updateUserAvatar = async ({ userId: id, avatarImage }) => {
   validations.validateId(id);
   const user = await UserModel.findById(id);
 
@@ -42,11 +62,11 @@ const updateUserAvatar = async ({ id, avatarImage }) => {
 
   const { avatarPath } = user;
 
-  if (avatarPath !== "default-avatar-jpg") {
+  if (avatarPath !== "default-avatar.jpg") {
     deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath);
   }
 
-  const newAvatarPath = await storeFile(avatarImage, TYPES.IMAGE);
+  const newAvatarPath = await storeFile(avatarImage, FILETYPES.IMAGE);
 
   user.avatarPath = newAvatarPath;
   user.save();
@@ -69,7 +89,7 @@ const getImageById = async (req, res, next) => {
   });
 };
 
-const updateUsername = async ({ id, username }) => {
+const updateUsername = async ({ userId: id, username }) => {
   await validations.validateUsername(username);
 
   const userToUpdate = await UserModel.findById(id);
@@ -82,7 +102,7 @@ const updateUsername = async ({ id, username }) => {
   return userToUpdate;
 };
 
-const updateEmail = async ({ id, email }) => {
+const updateEmail = async ({ userId: id, email }) => {
   await validations.validateEmail(email);
 
   const userToUpdate = await UserModel.findById(id);
@@ -95,7 +115,7 @@ const updateEmail = async ({ id, email }) => {
   return userToUpdate;
 };
 
-const updatePassword = async ({ id, oldPass, newPass }) => {
+const updatePassword = async ({ userId: id, oldPass, newPass }) => {
   validations.validateId(id);
   const user = await UserModel.findById(id);
 
@@ -112,7 +132,7 @@ const updatePassword = async ({ id, oldPass, newPass }) => {
   return user;
 };
 
-const deleteUser = async ({ id, password }) => {
+const deleteUser = async ({ userId: id, password }) => {
   validations.validateId(id);
   const user = await UserModel.findById(id);
 
@@ -120,14 +140,44 @@ const deleteUser = async ({ id, password }) => {
 
   await validations.comparePasswords(password, user.password);
 
-  const { avatarPath } = user;
+  const { avatarPath: avatar } = user;
 
-  if (avatarPath !== "default-avatar-jpg") {
-    deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath);
-  }
   const deletedUser = await UserModel.deleteOne({ _id: id });
 
+  if (avatar !== "default-avatar.jpg") {
+    deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatar);
+  }
   return deletedUser.acknowledged && deletedUser.deletedCount === 1;
+};
+
+const login = async ({ username, password }) => {
+  const user = await UserModel.findOne({ username });
+
+  if (!user) {
+    throw new GraphQLError("Wrong credentials.", {
+      extensions: { code: "BAD_USER_INPUT" },
+    });
+  }
+
+  await validations.comparePasswords(password, user.password);
+
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  };
+
+  return {
+    value: jwt.sign(userForToken, process.env.JWT_SECRET),
+  };
+};
+
+const getUser = async auth => {
+  if (auth && auth.toLowerCase().startsWith("bearer ")) {
+    const token = auth.substring(7); // split(" ")[1]
+    const { id } = jwt.verify(token, process.env.JWT_SECRET);
+    const currentUser = await UserModel.findById(id);
+    return currentUser;
+  }
 };
 
 export const userServices = {
@@ -140,4 +190,6 @@ export const userServices = {
   updateEmail,
   updatePassword,
   deleteUser,
+  login,
+  getUser,
 };

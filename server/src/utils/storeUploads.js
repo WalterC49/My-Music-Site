@@ -1,8 +1,8 @@
-import { TYPES, AVATARS_URL, SONGS_URL } from "../contants/conts.js";
+import { FILETYPES, AVATARS_URL, SONGS_URL } from "../contants/conts.js";
 import { extname } from "path";
 import { createWriteStream, unlink, unlinkSync } from "fs";
 
-export async function storeFile(file, type) {
+export async function storeFile(file, fileType) {
   const { filename, createReadStream } = await file;
 
   const fileExtension = extname(filename);
@@ -11,7 +11,7 @@ export async function storeFile(file, type) {
 
   const storedFileUrl = new URL(
     storedFileName,
-    type === TYPES.IMAGE ? AVATARS_URL : SONGS_URL,
+    fileType === FILETYPES.IMAGE ? AVATARS_URL : SONGS_URL,
   );
 
   const stream = createReadStream();

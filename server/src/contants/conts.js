@@ -14,7 +14,7 @@ export const UPLOAD_DIRECTORY_IMAGE_PATH = join(
 
 export const UPLOAD_DIRECTORY_SONG_PATH = join(CURRENT_DIR, "../public/songs/");
 
-export const TYPES = {
+export const FILETYPES = {
   IMAGE: "IMAGE",
   SONG: "SONG",
 };
