@@ -16,6 +16,35 @@ input addUserInput {
     password2:String!
 }
 
+type Source {
+    title:String!
+    singer:String!
+}
+
+input addSongInput {
+    title:String!
+    singer:String!
+    song:Upload!
+    isCover:Boolean!
+    source:Source
+    lyrics:String
+    tags:[String!]!
+}
+
+input Song {
+    title:String!
+    singer:String!
+    song:Upload!
+    isCover:Boolean!
+    source:Source
+    lyrics:String
+    reproductions:Int!
+    favorites:Int!
+    likes:Int!
+    dislikes:Int!
+    tags:[String!]!
+}
+
 type Token {
   value: String!
 }
@@ -23,6 +52,8 @@ type Token {
 type Query {
     users:[User]
     user(id:ID!):User
+    songs:[Song]
+    song:(id:ID!):Song
 }
 
 type Mutation {
