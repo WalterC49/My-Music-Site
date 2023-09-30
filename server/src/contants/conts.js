@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 
 export const UPLOAD_DIRECTORY_URL = new URL("../public/", import.meta.url);
 export const AVATARS_URL = UPLOAD_DIRECTORY_URL + "users-avatars/";
-export const SONGS_URL = UPLOAD_DIRECTORY_URL + "song/";
+export const SONGS_URL = UPLOAD_DIRECTORY_URL + "songs/";
 
 const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 
