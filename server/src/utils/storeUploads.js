@@ -7,7 +7,10 @@ export async function storeFile(file, fileType) {
 
   const fileExtension = extname(filename);
   const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-  const storedFileName = `avatar${uniqueSuffix}${fileExtension}`;
+
+  const storedFileName = `${
+    fileType === FILETYPES.IMAGE ? "avatar" : "song"
+  }${uniqueSuffix}${fileExtension}`;
 
   const storedFileUrl = new URL(
     storedFileName,

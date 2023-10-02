@@ -113,6 +113,36 @@ const comparePasswords = async (password, hash) => {
   return true;
 };
 
+const isAuthenticated = currentUser => {
+  if (!currentUser) {
+    throw new GraphQLError("You are not authenticated.", {
+      extensions: {
+        code: "UNAUTHENTICATED",
+      },
+    });
+  }
+};
+
+const isAdmin = currentUser => {
+  if (!currentUser.roles.includes("ADMIN")) {
+    throw new GraphQLError("You are not authorized to do this.", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
+  }
+};
+
+const songExists = song => {
+  if (!song)
+    throw new GraphQLError("That song doesn't exists.", {
+      extensions: {
+        code: ApolloServerErrorCode.BAD_USER_INPUT,
+      },
+    });
+  return true;
+};
+
 export const validations = {
   validateId,
   validateUsername,
@@ -122,4 +152,7 @@ export const validations = {
   validateCreateUser,
   userExists,
   comparePasswords,
+  isAuthenticated,
+  isAdmin,
+  songExists,
 };

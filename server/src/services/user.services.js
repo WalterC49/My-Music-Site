@@ -27,20 +27,11 @@ const createUser = async ({ user }) => {
 
 const getAllUsers = async context => {
   const { currentUser } = context;
-  if (!currentUser) {
-    throw new GraphQLError("You are not authenticated.", {
-      extensions: {
-        code: "UNAUTHENTICATED",
-      },
-    });
-  }
-  if (!currentUser.roles.includes("ADMIN")) {
-    throw new GraphQLError("You are not authorized to do this.", {
-      extensions: {
-        code: "FORBIDDEN",
-      },
-    });
-  }
+
+  validations.isAuthenticated(currentUser);
+
+  validations.isAdmin(currentUser);
+
   const users = await UserModel.find();
   return users;
 };

@@ -1,3 +1,4 @@
+import { songServices } from "../services/song.services.js";
 import { userServices } from "./../services/user.services.js";
 import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 
@@ -8,14 +9,26 @@ export const resolvers = {
       return userServices.getAllUsers(context);
     },
     user: (_parent, { id }) => {
-      const user = userServices.getUserById({ id });
-      return user;
+      return userServices.getUserById({ id });
+    },
+    songs: (_parent, _args, _context) => {
+      return songServices.getAllSongs();
+    },
+    song: (_parent, { id }) => {
+      return songServices.getSongById({ id });
     },
   },
+  /* Song: {
+    source: parent => {
+      return {
+        title: parent.title,
+        singer: parent.singer,
+      };
+    },
+  }, */
   Mutation: {
     createUser: (_parent, args) => {
-      const user = userServices.createUser(args);
-      return user;
+      return userServices.createUser(args);
     },
     updateUserAvatar: (_parent, args) => {
       const user = userServices.updateUserAvatar(args);
@@ -40,6 +53,10 @@ export const resolvers = {
     login: (_parent, args) => {
       const token = userServices.login(args);
       return token;
+    },
+    addSong: (_parent, args, context) => {
+      const song = songServices.addSong(args, context);
+      return song;
     },
   },
 };

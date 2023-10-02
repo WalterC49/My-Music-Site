@@ -7,6 +7,7 @@ type User {
     id:String!
     roles:[String!]!
     avatarPath:String!
+    songs:[Song]!
 }
 
 input addUserInput {
@@ -21,27 +22,29 @@ type Source {
     singer:String!
 }
 
+type Song {
+    id:ID!
+    title:String!
+    singer:String!
+    songPath:String!
+    isCover:Boolean!
+    source:Source
+    lyrics:String!
+    reproductions:Int!
+    favorites:Int!
+    likes:Int!
+    dislikes:Int!
+    tags:[String!]!
+}
+
 input addSongInput {
     title:String!
     singer:String!
     song:Upload!
     isCover:Boolean!
-    source:Source
-    lyrics:String
-    tags:[String!]!
-}
-
-input Song {
-    title:String!
-    singer:String!
-    song:Upload!
-    isCover:Boolean!
-    source:Source
-    lyrics:String
-    reproductions:Int!
-    favorites:Int!
-    likes:Int!
-    dislikes:Int!
+    sourceTitle:String
+    sourceSinger:String
+    lyrics:String!
     tags:[String!]!
 }
 
@@ -53,7 +56,7 @@ type Query {
     users:[User]
     user(id:ID!):User
     songs:[Song]
-    song:(id:ID!):Song
+    song(id:ID!):Song
 }
 
 type Mutation {
@@ -64,5 +67,6 @@ type Mutation {
     updatePassword(userId:ID!,oldPass:String!,newPass:String!):User
     deleteUser(userId:ID!,password:String!):Boolean
     login(username:String!,password:String!):Token
+    addSong(song:addSongInput!):Song
 }
 `;

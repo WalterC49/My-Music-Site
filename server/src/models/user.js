@@ -18,12 +18,17 @@ const schema = new Schema({
   password: {
     type: String,
     required: true,
-    minLength: 8,
   },
   avatarPath: {
     type: String,
     required: true,
   },
+  songs: [
+    {
+      ref: "Song",
+      type: Schema.Types.ObjectId,
+    },
+  ],
 });
 
 export default model("User", schema);
