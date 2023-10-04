@@ -1,4 +1,4 @@
-import { FILETYPES } from "../contants/conts.js";
+import { FILETYPES, UPLOAD_DIRECTORY_SONG_PATH } from "../contants/conts.js";
 import { storeFile } from "../utils/storeUploads.js";
 import { validations } from "../utils/validations.js";
 import SongModel from "./../models/song.js";
@@ -8,29 +8,34 @@ const addSong = async (args, context) => {
 
   validations.isAuthenticated(currentUser);
 
-  const { title, singer, songFile, isCover, lyrics, tags } = args;
+  const { song, songFile } = args;
+
+  validations.validateAddSong(song);
+  validations.validateIsCover(song);
 
   const songPath = await storeFile(songFile, FILETYPES.SONG);
 
-  const song = new SongModel({
-    title,
-    singer,
+  const newSong = new SongModel({
+    ...song,
     songPath,
-    isCover,
-    lyrics,
-    tags,
+    source: song.isCover
+      ? {
+          title: song.sourceTitle,
+          singer: song.sourceSinger,
+        }
+      : null,
   });
 
-  await song.save();
+  await newSong.save();
 
-  currentUser.song.concat(song);
+  currentUser.songs = currentUser.songs.concat(newSong);
 
   await currentUser.save();
 
-  return song;
+  return newSong;
 };
 
-const getAllSongs = async ({ currentUser }) => {
+const getAllSongs = async () => {
   /* validations.isAuthenticated(currentUser);
   validations.isAdmin(currentUser); */
 
@@ -48,8 +53,25 @@ const getSongById = async ({ id }) => {
   return song;
 };
 
+const getSongFileById = async (req, res, next) => {
+  const { id } = req.params;
+  validations.validateId(id);
+  const song = await SongModel.findById(id);
+
+  validations.songExists(song);
+
+  const { songPath } = song;
+
+  res.sendFile(UPLOAD_DIRECTORY_SONG_PATH + songPath, err => {
+    if (err) {
+      next(err);
+    }
+  });
+};
+
 export const songServices = {
   addSong,
   getAllSongs,
   getSongById,
+  getSongFileById,
 };

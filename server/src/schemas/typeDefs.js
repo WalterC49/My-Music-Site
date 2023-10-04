@@ -18,8 +18,8 @@ input addUserInput {
 }
 
 type Source {
-    title:String!
-    singer:String!
+    title:String
+    singer:String
 }
 
 type Song {
@@ -40,7 +40,6 @@ type Song {
 input addSongInput {
     title:String!
     singer:String!
-    song:Upload!
     isCover:Boolean!
     sourceTitle:String
     sourceSinger:String
@@ -67,6 +66,6 @@ type Mutation {
     updatePassword(userId:ID!,oldPass:String!,newPass:String!):User
     deleteUser(userId:ID!,password:String!):Boolean
     login(username:String!,password:String!):Token
-    addSong(song:addSongInput!):Song
+    addSong(song:addSongInput!, songFile:Upload!):Song
 }
 `;

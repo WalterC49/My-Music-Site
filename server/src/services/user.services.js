@@ -38,7 +38,7 @@ const getAllUsers = async context => {
 
 const getUserById = async ({ id }) => {
   validations.validateId(id);
-  const user = await UserModel.findById(id);
+  const user = await UserModel.findById(id).populate("songs");
 
   validations.userExists(user);
 

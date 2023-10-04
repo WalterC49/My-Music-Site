@@ -143,6 +143,86 @@ const songExists = song => {
   return true;
 };
 
+const validateSongTitle = title => {
+  if (title.length < 1)
+    throw new GraphQLError(
+      "The song's title must have at least one character.",
+      {
+        extensions: {
+          code: ApolloServerErrorCode.BAD_USER_INPUT,
+        },
+      },
+    );
+};
+
+const validateSongSinger = singer => {
+  if (singer.length < 1)
+    throw new GraphQLError(
+      "The song's singer must have at least one character.",
+      {
+        extensions: {
+          code: ApolloServerErrorCode.BAD_USER_INPUT,
+        },
+      },
+    );
+};
+
+const validateSongLyrics = lyrics => {
+  if (lyrics.length < 1)
+    throw new GraphQLError(
+      "The song's lyrics must have at least one character.",
+      {
+        extensions: {
+          code: ApolloServerErrorCode.BAD_USER_INPUT,
+        },
+      },
+    );
+};
+
+const validateSongTags = tags => {
+  if (tags.length < 1)
+    throw new GraphQLError("The song's tags must have at least one tag.", {
+      extensions: {
+        code: ApolloServerErrorCode.BAD_USER_INPUT,
+      },
+    });
+};
+
+const validateAddSong = song => {
+  const { title, singer, lyrics, tags } = song;
+
+  validateSongTitle(title);
+  validateSongSinger(singer);
+  validateSongLyrics(lyrics);
+  validateSongTags(tags);
+};
+
+const validateIsCover = song => {
+  const { isCover } = song;
+
+  if (isCover) {
+    const { sourceTitle, sourceSinger } = song;
+    if (sourceTitle.length < 1)
+      throw new GraphQLError(
+        "The source's title must have at least one character.",
+        {
+          extensions: {
+            code: ApolloServerErrorCode.BAD_USER_INPUT,
+          },
+        },
+      );
+    if (sourceSinger.length < 1)
+      throw new GraphQLError(
+        "The source's singer must have at least one character.",
+        {
+          extensions: {
+            code: ApolloServerErrorCode.BAD_USER_INPUT,
+          },
+        },
+      );
+  }
+};
+
 export const validations = {
   validateId,
   validateUsername,
@@ -155,4 +235,6 @@ export const validations = {
   isAuthenticated,
   isAdmin,
   songExists,
+  validateAddSong,
+  validateIsCover,
 };

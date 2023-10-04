@@ -20,11 +20,9 @@ const schema = new Schema({
   source: {
     title: {
       type: String,
-      required: true,
     },
     singer: {
       type: String,
-      required: true,
     },
   },
   reproductions: {

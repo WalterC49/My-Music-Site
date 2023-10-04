@@ -11,6 +11,7 @@ import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import avatarRouter from "./routes/avatar.routes.js";
 import { userServices } from "./services/user.services.js";
+import songRouter from "./routes/song.routes.js";
 connectDB();
 
 const app = express();
@@ -25,6 +26,7 @@ const server = new ApolloServer({
 });
 
 app.use("/", avatarRouter);
+app.use("/", songRouter);
 
 await server.start();
 // Apollo-Require-Preflight false
