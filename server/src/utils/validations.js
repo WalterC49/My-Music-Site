@@ -197,29 +197,36 @@ const validateAddSong = song => {
   validateSongTags(tags);
 };
 
+const validateSongSourceTitle = sourceTitle => {
+  if (sourceTitle.length < 1)
+    throw new GraphQLError(
+      "The source's title must have at least one character.",
+      {
+        extensions: {
+          code: ApolloServerErrorCode.BAD_USER_INPUT,
+        },
+      },
+    );
+};
+
+const validateSongSourceSinger = sourceSinger => {
+  if (sourceSinger.length < 1)
+    throw new GraphQLError(
+      "The source's singer must have at least one character.",
+      {
+        extensions: {
+          code: ApolloServerErrorCode.BAD_USER_INPUT,
+        },
+      },
+    );
+};
+
 const validateIsCover = song => {
   const { isCover } = song;
-
   if (isCover) {
     const { sourceTitle, sourceSinger } = song;
-    if (sourceTitle.length < 1)
-      throw new GraphQLError(
-        "The source's title must have at least one character.",
-        {
-          extensions: {
-            code: ApolloServerErrorCode.BAD_USER_INPUT,
-          },
-        },
-      );
-    if (sourceSinger.length < 1)
-      throw new GraphQLError(
-        "The source's singer must have at least one character.",
-        {
-          extensions: {
-            code: ApolloServerErrorCode.BAD_USER_INPUT,
-          },
-        },
-      );
+    validateSongSourceTitle(sourceTitle);
+    validateSongSourceSinger(sourceSinger);
   }
 };
 
@@ -237,4 +244,10 @@ export const validations = {
   songExists,
   validateAddSong,
   validateIsCover,
+  validateSongTitle,
+  validateSongSinger,
+  validateSongLyrics,
+  validateSongTags,
+  validateSongSourceTitle,
+  validateSongSourceSinger,
 };

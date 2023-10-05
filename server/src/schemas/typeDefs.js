@@ -61,11 +61,22 @@ type Query {
 type Mutation {
     createUser(user:addUserInput!):User
     updateUserAvatar(userId:ID!, avatarImage:Upload!):User
-    updateUsername(userId:ID!,username:String!):User
-    updateEmail(userId:ID!,email:String!):User
-    updatePassword(userId:ID!,oldPass:String!,newPass:String!):User
-    deleteUser(userId:ID!,password:String!):Boolean
-    login(username:String!,password:String!):Token
+    updateUsername(userId:ID!, username:String!):User
+    updateEmail(userId:ID!, email:String!):User
+    updatePassword(userId:ID!, oldPass:String!, newPass:String!):User
+    deleteUser(userId:ID!, password:String!):Boolean
+
+    login(username:String!, password:String!):Token
+
     addSong(song:addSongInput!, songFile:Upload!):Song
+    updateSongTitle(id:ID!, title:String!):Song
+    updateSongSinger(id:ID!, singer:String!):Song
+    updateSongLyrics(id:ID!, lyrics:String!):Song
+    updateSongTags(id:ID!, tags:[String!]!):Song
+    updateSongFile(id:ID!, songFile:Upload!):Song
+    updateIsCover(id:ID!, isCover:Boolean!, sourceTitle:String, sourceSinger:String):Song
+    updateSongSourceTitle(id:ID!, sourceTitle:String!):Song
+    updateSongSourceSinger(id:ID!, sourceSinger:String!):Song
+    deleteSong(id:ID!, password:String!):Boolean
 }
 `;
