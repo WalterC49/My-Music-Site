@@ -45,23 +45,19 @@ const getUserById = async ({ id }) => {
   return user;
 };
 
-const updateUserAvatar = async ({ userId: id, avatarImage }) => {
-  validations.validateId(id);
-  const user = await UserModel.findById(id);
+const updateUserAvatar = async ({ avatarImage }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
 
-  validations.userExists(user);
-
-  const { avatarPath } = user;
-
+  const { avatarPath } = currentUser;
   if (avatarPath !== "default-avatar.jpg") {
     deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath);
   }
 
   const newAvatarPath = await storeFile(avatarImage, FILETYPES.IMAGE);
-
-  user.avatarPath = newAvatarPath;
-  user.save();
-  return user;
+  currentUser.avatarPath = newAvatarPath;
+  currentUser.save();
+  return currentUser;
 };
 
 const getImageById = async (req, res, next) => {
@@ -80,63 +76,45 @@ const getImageById = async (req, res, next) => {
   });
 };
 
-const updateUsername = async ({ userId: id, username }) => {
+const updateUsername = async ({ username }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
   await validations.validateUsername(username);
-
-  const userToUpdate = await UserModel.findById(id);
-
-  validations.userExists(userToUpdate);
-
-  userToUpdate.username = username;
-  userToUpdate.save();
-
-  return userToUpdate;
+  currentUser.username = username;
+  currentUser.save();
+  return currentUser;
 };
 
-const updateEmail = async ({ userId: id, email }) => {
+const updateEmail = async ({ email }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
   await validations.validateEmail(email);
-
-  const userToUpdate = await UserModel.findById(id);
-
-  validations.userExists(userToUpdate);
-
-  userToUpdate.email = email;
-  userToUpdate.save();
-
-  return userToUpdate;
+  currentUser.email = email;
+  currentUser.save();
+  return currentUser;
 };
 
-const updatePassword = async ({ userId: id, oldPass, newPass }) => {
-  validations.validateId(id);
-  const user = await UserModel.findById(id);
-
-  validations.userExists(user);
-
-  await validations.comparePasswords(oldPass, user.password);
+const updatePassword = async ({ oldPass, newPass }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
+  await validations.comparePasswords(oldPass, currentUser.password);
 
   const passHash = await bcrypt.hash(newPass, SALT);
-
-  user.password = passHash;
-
-  await user.save();
-
-  return user;
+  currentUser.password = passHash;
+  await currentUser.save();
+  return currentUser;
 };
 
-const deleteUser = async ({ userId: id, password }) => {
-  validations.validateId(id);
-  const user = await UserModel.findById(id);
+const deleteUser = async ({ password }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
+  await validations.comparePasswords(password, currentUser.password);
 
-  validations.userExists(user);
+  const { avatarPath, _id } = currentUser;
 
-  await validations.comparePasswords(password, user.password);
-
-  const { avatarPath: avatar } = user;
-
-  const deletedUser = await UserModel.deleteOne({ _id: id });
-
-  if (avatar !== "default-avatar.jpg") {
-    deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatar);
+  const deletedUser = await UserModel.deleteOne({ _id });
+  if (avatarPath !== "default-avatar.jpg") {
+    deleteFile(UPLOAD_DIRECTORY_IMAGE_PATH + avatarPath);
   }
   return deletedUser.acknowledged && deletedUser.deletedCount === 1;
 };
@@ -166,7 +144,7 @@ const getUser = async auth => {
   if (auth && auth.toLowerCase().startsWith("bearer ")) {
     const token = auth.substring(7); // split(" ")[1]
     const { id } = jwt.verify(token, process.env.JWT_SECRET);
-    const currentUser = await UserModel.findById(id);
+    const currentUser = await UserModel.findById(id).populate("songs");
     return currentUser;
   }
 };

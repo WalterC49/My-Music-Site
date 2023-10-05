@@ -57,7 +57,6 @@ const validateEmail = async email => {
 const validatePassword = password => {
   const regex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@!#$%&?"'¡¿]).{8,21})/;
 
-  console.log(regex.test(password));
   if (!regex.test(password))
     throw new GraphQLError(
       `Passwords must have between 8 and 20 characters, at least one upper case letter, one lower case letter, one number and one special character.`,

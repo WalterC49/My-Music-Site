@@ -24,8 +24,6 @@ const addSong = async (args, context) => {
       : null,
   });
 
-  console.log(newSong);
-
   await newSong.save();
 
   currentUser.songs = currentUser.songs.concat(newSong);
@@ -63,7 +61,7 @@ const getSongFileById = async (req, res, next) => {
 
   res.sendFile(UPLOAD_DIRECTORY_SONG_PATH + songPath, err => {
     if (err) {
-      next(err);
+      /* next(err); */
     }
   });
 };
@@ -175,6 +173,7 @@ const updateSongSourceTitle = async ({ id, sourceTitle }, context) => {
 
   const song = await SongModel.findById(id);
   validations.songExists(song);
+  if (song.isCover === false) return null;
   song.source.title = sourceTitle;
   await song.save();
   return song;
@@ -187,6 +186,7 @@ const updateSongSourceSinger = async ({ id, sourceSinger }, context) => {
   validations.validateSongSourceSinger(sourceSinger);
 
   const song = await SongModel.findById(id);
+  if (song.isCover === false) return null;
   validations.songExists(song);
   song.source.singer = sourceSinger;
   await song.save();

@@ -22,24 +22,24 @@ export const resolvers = {
     createUser: (_parent, args) => {
       return userServices.createUser(args);
     },
-    updateUserAvatar: (_parent, args) => {
-      const user = userServices.updateUserAvatar(args);
+    updateUserAvatar: (_parent, args, context) => {
+      const user = userServices.updateUserAvatar(args, context);
       return user;
     },
-    updateUsername: (_parent, args) => {
-      const user = userServices.updateUsername(args);
+    updateUsername: (_parent, args, context) => {
+      const user = userServices.updateUsername(args, context);
       return user;
     },
-    updateEmail: (_parent, args) => {
-      const user = userServices.updateEmail(args);
+    updateEmail: (_parent, args, context) => {
+      const user = userServices.updateEmail(args, context);
       return user;
     },
-    updatePassword: (_parent, args) => {
-      const user = userServices.updatePassword(args);
+    updatePassword: (_parent, args, context) => {
+      const user = userServices.updatePassword(args, context);
       return user;
     },
-    deleteUser: (_parent, args) => {
-      const user = userServices.deleteUser(args);
+    deleteUser: (_parent, args, context) => {
+      const user = userServices.deleteUser(args, context);
       return user;
     },
     login: (_parent, args) => {

@@ -60,11 +60,11 @@ type Query {
 
 type Mutation {
     createUser(user:addUserInput!):User
-    updateUserAvatar(userId:ID!, avatarImage:Upload!):User
-    updateUsername(userId:ID!, username:String!):User
-    updateEmail(userId:ID!, email:String!):User
-    updatePassword(userId:ID!, oldPass:String!, newPass:String!):User
-    deleteUser(userId:ID!, password:String!):Boolean
+    updateUserAvatar(avatarImage:Upload!):User
+    updateUsername(username:String!):User
+    updateEmail(email:String!):User
+    updatePassword(oldPass:String!, newPass:String!):User
+    deleteUser(password:String!):Boolean
 
     login(username:String!, password:String!):Token
 
