@@ -2,8 +2,10 @@ import {
   UPLOAD_DIRECTORY_IMAGE_PATH,
   FILETYPES,
   SALT,
+  UPLOAD_DIRECTORY_SONG_PATH,
 } from "../contants/conts.js";
 import UserModel from "../models/user.js";
+import SongModel from "../models/song.js";
 import { storeFile, deleteFile } from "../utils/storeUploads.js";
 import bcrypt from "bcryptjs";
 import { validations } from "../utils/validations.js";
@@ -110,7 +112,14 @@ const deleteUser = async ({ password }, context) => {
   validations.isAuthenticated(currentUser);
   await validations.comparePasswords(password, currentUser.password);
 
-  const { avatarPath, _id } = currentUser;
+  const { avatarPath, _id, songs } = currentUser;
+
+  if (songs.length > 0) {
+    songs.forEach(async song => {
+      await SongModel.deleteOne({ _id: song._id });
+      deleteFile(UPLOAD_DIRECTORY_SONG_PATH + song.songPath);
+    });
+  }
 
   const deletedUser = await UserModel.deleteOne({ _id });
   if (avatarPath !== "default-avatar.jpg") {
