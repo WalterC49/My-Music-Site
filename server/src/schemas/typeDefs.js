@@ -58,6 +58,11 @@ type Query {
     song(id:ID!):Song
 }
 
+enum MoreOrLess {
+    MORE
+    LESS
+}
+
 type Mutation {
     createUser(user:addUserInput!):User
     updateUserAvatar(avatarImage:Upload!):User
@@ -77,6 +82,10 @@ type Mutation {
     updateIsCover(id:ID!, isCover:Boolean!, sourceTitle:String, sourceSinger:String):Song
     updateSongSourceTitle(id:ID!, sourceTitle:String!):Song
     updateSongSourceSinger(id:ID!, sourceSinger:String!):Song
+    updateSongReproductions(id:ID!):Song
+    updateSongFavorites(id:ID!, moreOrLess:MoreOrLess!):Song
+    updateSongLikes(id:ID!, moreOrLess:MoreOrLess!):Song
+    updateSongDislikes(id:ID!, moreOrLess:MoreOrLess!):Song
     deleteSong(id:ID!, password:String!):Boolean
 }
 `;

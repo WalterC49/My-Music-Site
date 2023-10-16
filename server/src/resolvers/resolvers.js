@@ -82,6 +82,22 @@ export const resolvers = {
       const song = songServices.updateSongSourceSinger(args, context);
       return song;
     },
+    updateSongReproductions: (_parent, args, context) => {
+      const song = songServices.updateSongReproductions(args, context);
+      return song;
+    },
+    updateSongFavorites: (_parent, args, context) => {
+      const song = songServices.updateSongFavorites(args, context);
+      return song;
+    },
+    updateSongLikes: (_parent, args, context) => {
+      const song = songServices.updateSongLikes(args, context);
+      return song;
+    },
+    updateSongDislikes: (_parent, args, context) => {
+      const song = songServices.updateSongDislikes(args, context);
+      return song;
+    },
     deleteSong: (_parent, args, context) => {
       const song = songServices.deleteSong(args, context);
       return song;

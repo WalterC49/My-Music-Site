@@ -193,6 +193,72 @@ const updateSongSourceSinger = async ({ id, sourceSinger }, context) => {
   return song;
 };
 
+const updateSongReproductions = async ({ id }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
+  validations.validateId(id);
+
+  const song = await SongModel.findById(id);
+  validations.songExists(song);
+  song.reproductions++;
+  await song.save();
+  return song;
+};
+
+const updateSongFavorites = async ({ id, moreOrLess }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
+  validations.validateId(id);
+
+  const song = await SongModel.findById(id);
+  validations.songExists(song);
+
+  if (moreOrLess === "MORE") {
+    song.favorites++;
+  } else {
+    song.favorites--;
+  }
+
+  await song.save();
+  return song;
+};
+
+const updateSongLikes = async ({ id, moreOrLess }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
+  validations.validateId(id);
+
+  const song = await SongModel.findById(id);
+  validations.songExists(song);
+
+  if (moreOrLess === "MORE") {
+    song.likes++;
+  } else {
+    song.likes--;
+  }
+
+  await song.save();
+  return song;
+};
+
+const updateSongDislikes = async ({ id, moreOrLess }, context) => {
+  const { currentUser } = context;
+  validations.isAuthenticated(currentUser);
+  validations.validateId(id);
+
+  const song = await SongModel.findById(id);
+  validations.songExists(song);
+
+  if (moreOrLess === "MORE") {
+    song.dislikes++;
+  } else {
+    song.dislikes--;
+  }
+
+  await song.save();
+  return song;
+};
+
 const deleteSong = async ({ id, password }, context) => {
   const { currentUser } = context;
   validations.isAuthenticated(currentUser);
@@ -223,5 +289,9 @@ export const songServices = {
   updateIsCover,
   updateSongSourceTitle,
   updateSongSourceSinger,
+  updateSongReproductions,
+  updateSongFavorites,
+  updateSongLikes,
+  updateSongDislikes,
   deleteSong,
 };
